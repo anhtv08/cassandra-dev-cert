@@ -1,0 +1,39 @@
+ # check cassandra cluster node.
+
+ ./bin/nodetool status
+
+
+# open cqlsh terminal
+./bin/cqlsh
+ # create new keyspace for KillrVideo in cassandra
+
+
+create keyspace KillrVideo
+ with replication = {
+  'class' : 'SimpleStrategy',
+  'replication_factor' : 1
+};
+
+ # switch to the schema
+ use KillrVideo;
+ # create videos tables with primary key is video_id
+ create table videos(
+  video_id timeuuid ,
+  added_date timestamp,
+  title text,
+  PRIMARY KEY(video_id)
+ );
+
+ # load data from csv file.
+
+ COPY videos(video_id, added_date, title)
+ FROM '/Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos.csv'
+ WITH HEADER=TRUE;
+
+ # verify data.
+
+ select * from videos ;
+ select count(1) from videos;
+
+ # exit from cql
+ quit
