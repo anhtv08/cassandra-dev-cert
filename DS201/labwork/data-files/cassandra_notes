@@ -1,4 +1,7 @@
- # check cassandra cluster node.
+
+# note that this is my working folder :
+#  /Users/anhtrang/working/cassandra-db/work/DS201
+# check cassandra cluster node.
 
  ./bin/nodetool status
 
@@ -38,5 +41,69 @@ create keyspace KillrVideo
  # exit from cql
  quit
 
- ======== partitions=========
- 
+ ======== partitions exercise =========
+
+
+# check node status
+
+./bin/nodetool status
+
+# verify data file.
+
+cat /Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv
+
+# create table videos by tags
+
+create table videos_by_tag(
+  tag text,
+  video_id timeuuid ,
+  added_date timestamp,
+  title text,
+  PRIMARY KEY( (tag), video_id)
+);
+
+# load data into videos_by_tag table.
+
+COPY videos_by_tag(tag, video_id, added_date, title) FROM '/Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv' WITH HEADER = TRUE;
+
+# verify table after load.
+SELECT * FROM videos_by_tag;
+
+# find data by tag.
+
+select * from videos_by_tag
+where tag ='datastax';
+
+# query table by title 'Cassandra Intro'.
+# should expect error as Cassandra does not support query data no non-primary columns
+# unless the allow filtering is enable
+
+========= clustering columns========
+
+# drop tables videos_by_tag;
+drop table videos_by_tag;
+
+# create table with the clustering key added_date desc
+CREATE TABLE videos_by_tag (
+     tag text,
+     video_id uuid,
+     added_date timestamp,
+     title text,
+     PRIMARY KEY (
+      (tag),
+      added_date,
+      video_id
+     ))
+
+WITH CLUSTERING ORDER BY  (
+      added_date desc
+);
+
+# Re-load data into data.
+
+COPY videos_by_tag(tag, video_id, added_date, title) FROM '/Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv' WITH HEADER = TRUE;
+
+# select videos made in 2013 or later;
+
+// time format in UTC format, with Z indicate UTC offset=0 (GMT)
+select * from videos_by_tag  where tag ='cassandra'  and added_date >= '2013-01-01T00:00:00Z'
