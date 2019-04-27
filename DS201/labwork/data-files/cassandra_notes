@@ -37,3 +37,6 @@ create keyspace KillrVideo
 
  # exit from cql
  quit
+
+ ======== partitions=========
+ 
