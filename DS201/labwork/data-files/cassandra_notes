@@ -107,3 +107,10 @@ COPY videos_by_tag(tag, video_id, added_date, title) FROM '/Users/anhtrang/worki
 
 // time format in UTC format, with Z indicate UTC offset=0 (GMT)
 select * from videos_by_tag  where tag ='cassandra'  and added_date >= '2013-01-01T00:00:00Z'
+
+=========== Driver connectivity========
+
+============= node=======
+
+# check number of tokens on the nodes. Default is 256.
+./bin/nodetool info --tokens | grep Token | wc
