@@ -1,13 +1,17 @@
 
+# setup cassandra home folder.
+
+export CASSANDRA_HOME=/Users/anhtrang/working/cassandra-db/apache-cassandra-3.11.4
+
 # note that this is my working folder :
 #  /Users/anhtrang/working/cassandra-db/work/DS201
 # check cassandra cluster node.
 
- ./bin/nodetool status
+ ./nodetool status
 
 
 # open cqlsh terminal
-./bin/cqlsh
+./cqlsh
  # create new keyspace for KillrVideo in cassandra
 
 
@@ -46,7 +50,7 @@ create keyspace KillrVideo
 
 # check node status
 
-./bin/nodetool status
+./nodetool status
 
 # verify data file.
 
@@ -113,4 +117,104 @@ select * from videos_by_tag  where tag ='cassandra'  and added_date >= '2013-01-
 ============= node=======
 
 # check number of tokens on the nodes. Default is 256.
-./bin/nodetool info --tokens | grep Token | wc
+./nodetool info --tokens | grep Token | wc
+
+# decribe cluster information.
+
+./nodetool describecluster
+
+# getting logging level
+./nodetool getlogginglevels
+
+# enable trace.
+./nodetool setlogginglevel org.apache.cassandra TRACE
+
+# drain to stop write on current node and flush all sstables onto disk.
+# This command run before stop cassandra deamon process.
+
+./nodetool drain
+
+#  stop node execution process.
+./nodetool stopdaemon
+
+# re-start node.
+
+./cassandra
+
+# run stress test. change to CASSANDRA_HOME/tools/bin
+# folder where the stress test tool reside.
+./cassandra-stress write n=50000 no-warmup -rate threads=1 \
+>>/Users/anhtrang/working/cassandra-db/work/DS201/labwork/logs/stress-test.log
+
+# flush data.
+./nodetool flush
+
+# check status
+
+./nodetool status
+
+============== Ring===========
+# create two nodes cluster.
+
+# stop current running casandra.
+ ./nodetool stopdaemon
+
+# create two new folders ( node1, node2)
+mkdir node1 node2
+
+# extract tar file into node1 node2
+
+tar -xvf apache-cassandra-3.11.4-bin.tar.gz -C node1
+tar -xvf apache-cassandra-3.11.4-bin.tar.gz -C node2
+
+#  create videos and videos_by_tag table
+# reload data using previous step.
+
+# run this command to specify the number of partitions.
+
+SELECT token(tag), tag
+FROM videos_by_tag;
+
+"""
+system.token(tag)    | tag
+----------------------+-----------
+ -1651127669401031945 |  datastax
+ -1651127669401031945 |  datastax
+   356242581507269238 | cassandra
+   356242581507269238 | cassandra
+   356242581507269238 | cassandra
+
+"""
+# solution is two partitions.
+
+
+# cassandra exchange data with other nodes using gossip protocol.
+
+./nodetool gossipinfo
+
+# consistency level.
+
+# if query under consistency level require
+# cassandra will return `NoHostAvailable` exception.
+==========Hinted Handoff==========
+
+========== Write path==========
+
+#install watch command on mac
+brew install watch
+
+# run this command to watch the commitlog folder
+watch -n 1 -d 'ls -lh $CASSANDRA_HOME/data/commitlog/'
+
+# run stress test.
+$CASSANDRA_HOME/tools/bin/cassandra-stress write no-warmup n=250000 -rate threads=1
+
+#run tablestats
+
+$CASSANDRA_HOME/bin/nodetool tablestats keyspace1.standard1
+
+# run flush to flush memtable to disk
+
+./nodetool flush
+
+======= read path=======
