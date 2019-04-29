@@ -232,5 +232,106 @@ CREATE TABLE if not exists killrVideo.videos_by_genre (
     added_date DESC
 );
 
+# load data into genre table:
 
+./cqlsh -e """
+COPY killrVideo.videos_by_genre
+(
+    genre, 
+    added_date, 
+    video_id, 
+    description, 
+    encoding, 
+    tags, 
+    title, 
+    user_id
+)
+FROM '$CASSANDRA_DATA_FILE/denormalization/videos_by_genre.csv' 
+WITH HEADER = true
+"""
+
+# verify data.
+
+SELECT * FROM videos_by_genre WHERE genre = 'Musical' LIMIT 10;
+
+#=====Table Features===============
+
+#=======UDTs==========
+
+
+# preview data.
+
+head $CASSANDRA_DATA_FILE/udts/videos_encoding.csv
+
+# alter videos table.
+
+alter table killrVideo.videos add (
+     tags set<text>
+)
+
+# load data into videos table.
+
+./cqlsh -e """
+COPY killrVideo.videos
+(
+    video_id, 
+    added_date, 
+    description, 
+    tags, 
+    title,
+    user_id
+)
+FROM '$CASSANDRA_DATA_FILE/udts/videos.csv' 
+WITH HEADER = true
+"""
+
+# verify data.
+./cqlsh -e "select count(*) from killrVideo.videos"
+
+# adding video_encoding. 
+# need to add frozen key word for nested data type
+
+alter table killrVideo.videos add(
+    encoding frozen<video_encoding>
+)
+
+# load data into videos table using copy command.
+
+./cqlsh -e """
+COPY killrVideo.videos
+(
+    video_id, 
+    encoding
+)
+FROM '$CASSANDRA_DATA_FILE/udts/videos_encoding.csv' 
+WITH HEADER = true
+"""
+
+# verify data - inline query approach.
+./cqlsh -e "select * from killrvideo.videos limit 10";
+
+# ============ counter ==============
+
+head "$CASSANDRA_DATA_FILE/counters/videos_count_by_tag.cql"
+
+create table if not exists killrVideo.videos_count_by_tag(
+    tag text,
+    added_year int,
+    video_count COUNTER,
+    PRIMARY key (
+        (tag,added_year)
+   )
+)
+
+# run the comment to update counter.
+./cqlsh -f "$CASSANDRA_DATA_FILE/counters/videos_count_by_tag.cql"
+
+# create killr_video data model.
+./cqlsh -f "$CASSANDRA_DATA_FILE/final/killrvideo.cql"
+
+# load data into killr_video schema.
+COPY videos FROM 'videos.csv' WITH HEADER=true;
+COPY latest_videos FROM 'latest_videos.csv' WITH HEADER=true;
+COPY trailers_by_video FROM 'trailers_by_video.csv' WITH HEADER=true;
+COPY actors_by_video FROM 'actors_by_video.csv' WITH HEADER=true;
 

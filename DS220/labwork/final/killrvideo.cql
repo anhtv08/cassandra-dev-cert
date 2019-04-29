@@ -5,40 +5,40 @@ CREATE KEYSPACE killr_video WITH replication = {'class': 'SimpleStrategy', 'repl
 USE killr_video;
 
 CREATE TABLE users_by_email (
-   email *CQL Type*,
-   password *CQL Type*,
-   user_id *CQL Type*,
+   email text,
+   password text,
+   user_id UUID,
    PRIMARY KEY ((email))
 );
 
 CREATE TABLE users (
-   user_id *CQL Type*,
-   email *CQL Type*,
-   first_name *CQL Type*,
-   last_name *CQL Type*,
-   registration_date *CQL Type*,
+   user_id UUID,
+   email text,
+   first_name TEXT,
+   last_name TEXT,
+   registration_date TIMESTAMP,
    PRIMARY KEY((user_id))
 );
 
 CREATE TABLE videos_by_user (
-   user_id *CQL Type*,
-   video_id *CQL Type*,
-   title *CQL Type*,
-   type *CQL Type*,
-   tags *CQL Type*,
-   preview_thumbnails *CQL Type*,
+   user_id UUID,
+   video_id UUID,
+   title TEXT,
+   type TEXT,
+   tags set<text>,
+   preview_thumbnails MAP<INT,BLOB> STATIC,
    PRIMARY KEY ((user_id), video_id))
 WITH CLUSTERING ORDER BY (video_id DESC);
 
 CREATE TABLE comments_by_user (
-   user_id *CQL Type*,
-   posted_timestamp *CQL Type*,
-   video_id *CQL Type*,
-   comment *CQL Type*,
-   title *CQL Type*,
-   type *CQL Type*,
-   tags *CQL Type*,
-   preview_thumbnails *CQL Type*,
+   user_id UUID,
+   posted_timestamp TIMESTAMP,
+   video_id UUID,
+   comment TEXT,
+   title TEXT,
+   type TEXT,
+   tags SET<TEXT>,
+   preview_thumbnails MAP<INT,BLOB> STATIC,
    PRIMARY KEY ((user_id), posted_timestamp, video_id))
 WITH CLUSTERING ORDER BY (posted_timestamp DESC, video_id ASC);
 
@@ -120,3 +120,4 @@ CREATE TABLE video_interactions_by_user_video (
    video_timestamp TIMESTAMP,
    PRIMARY KEY ((user_id, video_id), event_timestamp))
 WITH CLUSTERING ORDER BY (event_timestamp DESC);
+
