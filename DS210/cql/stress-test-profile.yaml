@@ -1,0 +1,48 @@
+
+# schema definition
+keyspace: perftesting
+
+keyspace_definition: |
+  CREATE KEYSPACE perftesting WITH replication = { 'class': 'SimpleStrategy', 'replication_factor': 1};
+table: users
+
+# table definition
+table_definition: |
+  CREATE TABLE users (
+    username text,
+    first_name text,
+    last_name text,
+    password text,
+    email text,
+    last_access timeuuid,
+    PRIMARY KEY(username)
+  );
+#  xtra_definitions:
+#   - CREATE MATERIALIZED VIEW perftesting.users_by_first_name AS SELECT * FROM perftesting.users WHERE first_name IS NOT NULL and username IS NOT NULL PRIMARY KEY (first_name, username);
+#   - CREATE MATERIALIZED VIEW perftesting.users_by_first_name2 AS SELECT * FROM perftesting.users WHERE first_name IS NOT NULL and username IS NOT NULL PRIMARY KEY (first_name, username);
+#   - CREATE MATERIALIZED VIEW perftesting.users_by_first_name3 AS SELECT * FROM perftesting.users WHERE first_name IS NOT NULL and username IS NOT NULL PRIMARY KEY (first_name, username);   
+# column spec defining the data distribition
+columnspec:
+  - name: username
+    size: uniform(10..30)
+  - name: first_name
+    size: fixed(16)
+  - name: last_name
+    size: uniform(1..32)
+  - name: password
+    size: fixed(80) # sha-512
+  - name: email
+    size: uniform(16..50)
+  - name: description
+    size: gaussian(100...500)
+
+# data insertion
+insert:
+  partitions: fixed(10)
+  batchtype: UNLOGGED
+
+# query
+queries:
+  read1:
+    cql: select * from users where username = ?
+    fields: samerow     # samerow or multirow (select arguments from the same row, or randomly from all rows in the partition)
