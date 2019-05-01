@@ -22,7 +22,7 @@ docker run --name cassandra3 \
 
 # verification
 # wait 30s to for cassandra start-up
-sleep 60
+sleep 30
 
 # run verify scripts
 verify_docker
