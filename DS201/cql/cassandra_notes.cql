@@ -1,10 +1,10 @@
 
 # setup cassandra home folder.
 
-export CASSANDRA_HOME=/Users/anhtrang/working/cassandra-db/apache-cassandra-3.11.4
+export CASSANDRA_HOME="$HOME/working/cassandra-db/apache-cassandra-3.11.4"
 
 # note that this is my working folder :
-#  /Users/anhtrang/working/cassandra-db/work/DS201
+#  $HOME/working/cassandra-db/work/DS201
 # check cassandra cluster node.
 
  ./nodetool status
@@ -34,7 +34,7 @@ create keyspace KillrVideo
  # load data from csv file.
 
  COPY videos(video_id, added_date, title)
- FROM '/Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos.csv'
+ FROM '$HOME/working/cassandra-db/work/DS201/labwork/data-files/videos.csv'
  WITH HEADER=TRUE;
 
  # verify data.
@@ -54,7 +54,7 @@ create keyspace KillrVideo
 
 # verify data file.
 
-cat /Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv
+cat $HOME/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv
 
 # create table videos by tags
 
@@ -68,7 +68,7 @@ create table videos_by_tag(
 
 # load data into videos_by_tag table.
 
-COPY videos_by_tag(tag, video_id, added_date, title) FROM '/Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv' WITH HEADER = TRUE;
+COPY videos_by_tag(tag, video_id, added_date, title) FROM '$HOME/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv' WITH HEADER = TRUE;
 
 # verify table after load.
 SELECT * FROM videos_by_tag;
@@ -105,7 +105,7 @@ WITH CLUSTERING ORDER BY  (
 
 # Re-load data into data.
 
-COPY videos_by_tag(tag, video_id, added_date, title) FROM '/Users/anhtrang/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv' WITH HEADER = TRUE;
+COPY videos_by_tag(tag, video_id, added_date, title) FROM '$HOME/working/cassandra-db/work/DS201/labwork/data-files/videos-by-tag.csv' WITH HEADER = TRUE;
 
 # select videos made in 2013 or later;
 
@@ -144,7 +144,7 @@ select * from videos_by_tag  where tag ='cassandra'  and added_date >= '2013-01-
 # run stress test. change to CASSANDRA_HOME/tools/bin
 # folder where the stress test tool reside.
 ./cassandra-stress write n=50000 no-warmup -rate threads=1 \
->>/Users/anhtrang/working/cassandra-db/work/DS201/labwork/logs/stress-test.log
+>>$HOME/working/cassandra-db/work/DS201/labwork/logs/stress-test.log
 
 # flush data.
 ./nodetool flush
