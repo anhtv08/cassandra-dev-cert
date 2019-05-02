@@ -1,7 +1,12 @@
 #!/bin/bash
 
 # remove all cassandra container.
-docker_ids=$(docker ps -a | grep cassandra| awk '{print $1}')
+export PROVISION_DOCKER_DIR=$HOME/working/cassandra-db/work/provision/docker
+# create network
+docker_ids=
+source $PROVISION_DOCKER_DIR/scripts/utils.sh
+get_cassandra_node
+
 docker stop $docker_ids
 docker rm $docker_ids
 
