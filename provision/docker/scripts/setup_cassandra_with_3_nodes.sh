@@ -25,6 +25,7 @@ docker_ids=
 get_cassandra_node
 # verification
 # wait 30s to for cassandra start-up
+echo "Waiting 30s for cassandra cluster warm-up"
 sleep 30
 
 # run verify scripts
